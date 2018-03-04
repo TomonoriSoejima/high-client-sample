@@ -24,7 +24,7 @@ public class Main {
         XContentBuilder builder = XContentFactory.jsonBuilder();
         builder.startObject();
         {
-            builder.field("user", "kimchy");
+            builder.field("user", "ffff");
             builder.field("postDate", new Date());
             builder.field("message", "trying out Elasticsearch");
         }

@@ -24,12 +24,12 @@ public class Main {
         XContentBuilder builder = XContentFactory.jsonBuilder();
         builder.startObject();
         {
-            builder.field("user", "ffff");
+            builder.field("user", "bbbb");
             builder.field("postDate", new Date());
             builder.field("message", "trying out Elasticsearch");
         }
         builder.endObject();
-        IndexRequest indexRequest = new IndexRequest("posts", "doc", "1")
+        IndexRequest indexRequest = new IndexRequest("posts", "doc", "2")
                 .source(builder);
 
         IndexResponse indexResponse = client.index(indexRequest);
@@ -50,6 +50,8 @@ public class Main {
                 String reason = failure.reason();
             }
         }
+
+        System.exit(0);
 
 
     }

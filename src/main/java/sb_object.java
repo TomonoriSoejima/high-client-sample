@@ -1,11 +1,21 @@
 public class sb_object {
 
-    public String messageid;
-    public String messageUID;
-    public String cmd;
-    public String msgid;
-    public String sid;
 
+
+    private String docid;
+    private String messageid;
+    private String messageUID;
+    private String cmd;
+    private String msgid;
+    private String sid;
+
+    public String getDocid() {
+        return docid;
+    }
+
+    public void setDocid(String docid) {
+        this.docid = docid;
+    }
 
     public String getMessageid() {
         return messageid;

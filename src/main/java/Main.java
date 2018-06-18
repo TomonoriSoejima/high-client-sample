@@ -9,15 +9,14 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class Main {
@@ -89,29 +88,99 @@ public class Main {
         SearchHits hits = searchResponse.getHits();
 
 
-
-        List<sb_object>  sb_objects = new ArrayList<sb_object>();
+        // key messageUID, value message-id
+        Map<String, String> message_id_UID = new HashMap<String, String>();
+        List<sb_object>  sb_objects = new LinkedList<sb_object>();
         SearchHit[] searchHits = hits.getHits();
         for (SearchHit hit : searchHits) {
             // do something with the SearchHit
             Map<String, Object> sourceAsMap = hit.getSourceAsMap();
             sb_object sb = new sb_object();
-            sb.setMessageid( (String) sourceAsMap.get("message-id"));
+            sb.setDocid( hit.getId());
             sb.setMessageUID( (String) sourceAsMap.get("messageUID"));
+            sb.setMessageid( (String) sourceAsMap.get("message-id"));
             sb.setCmd( (String) sourceAsMap.get("cmd"));
             sb.setMsgid( (String) sourceAsMap.get("msgid"));
             sb.setSid( (String) sourceAsMap.get("sid"));
 
             sb_objects.add(sb);
+
+
+
+            if (! sb.getMessageUID().startsWith("-") )
+            {
+                message_id_UID.put(sb.getMessageUID(), sb.getMessageid());
+            }
         }
 
-        int aa = 33;
+
+        List<String> doc_ids  = new LinkedList<String>();
+
+        // find document with same messageUID
+        for (String messageUID : message_id_UID.keySet())
+        {
+
+
+            System.out.println("searching by messageUID " + messageUID);
+
+            doc_ids = search_by_messageUID(messageUID);
+            for (String id_for_update : doc_ids ) {
+                System.out.println("Found " + id_for_update);
+
+            }
+            update_message_id(message_id_UID.get(messageUID), doc_ids);
+
+
+        }
+
 
     }
 
-    public static void do_something(String input)
+    // returns doc id who needs to be updated on message-id
+    public static List<String> search_by_messageUID(String input) throws Exception
     {
-        System.out.println(input);
+
+        List<String> doc_ids  = new LinkedList<String>();
+        RestHighLevelClient client = new RestHighLevelClient(
+                RestClient.builder(
+                        new HttpHost("localhost", 9200, "http"),
+                        new HttpHost("localhost", 9201, "http")));
+
+//        SearchRequest searchRequest = new SearchRequest("test_index");
+
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("cmd", input));
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("test_index");
+        searchRequest.source(sourceBuilder);
+//        QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("cmd", input);
+
+
+
+//        MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("cmd", input);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+//        searchSourceBuilder.query(sourceBuilder);
+//        searchSourceBuilder.query(matchQueryBuilder);
+        SearchResponse searchResponse;
+        searchResponse = client.search(searchRequest);
+        SearchHits hits = searchResponse.getHits();
+
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            doc_ids.add((hit.getId()));
+        }
+
+        return doc_ids;
+
+
     }
+
+
+    public static void update_message_id(String message_id, List docid) {
+            int aa = 9;
+    }
+
+
 
 }

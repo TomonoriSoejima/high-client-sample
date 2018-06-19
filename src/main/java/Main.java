@@ -40,48 +40,6 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         sample_code();
-        System.exit(0);
-
-        List kore = new ArrayList();
-        kore.add("hello");
-
-
-
-
-        XContentBuilder builder = XContentFactory.jsonBuilder();
-        builder.startObject();
-        {
-            builder.field("user", "bbbb");
-            builder.field("postDate", new Date());
-            builder.field("message", "trying out Elasticsearch");
-        }
-        builder.endObject();
-        IndexRequest indexRequest = new IndexRequest("posts", "doc", "2")
-                .source(builder);
-
-        IndexResponse indexResponse = client.index(indexRequest);
-        String type = indexResponse.getType();
-        String id = indexResponse.getId();
-        long version = indexResponse.getVersion();
-        if (indexResponse.getResult() == DocWriteResponse.Result.CREATED) {
-
-        } else if (indexResponse.getResult() == DocWriteResponse.Result.UPDATED) {
-
-        }
-        ReplicationResponse.ShardInfo shardInfo = indexResponse.getShardInfo();
-        if (shardInfo.getTotal() != shardInfo.getSuccessful()) {
-
-        }
-        if (shardInfo.getFailed() > 0) {
-            for (ReplicationResponse.ShardInfo.Failure failure : shardInfo.getFailures()) {
-                String reason = failure.reason();
-            }
-        }
-
-
-
-        System.exit(0);
-
 
     }
 
@@ -216,7 +174,6 @@ public class Main {
 
 //     - 処理４
 //    取得したmessage-idに対して、msgidが同じ値のドキュメントを特定する
-//    public static void shor4
     public static List<String> shori4(sb_object sb) throws Exception{
 
 
@@ -249,6 +206,47 @@ public class Main {
         }
 
         return doc_ids;
+
+    }
+
+
+    public static void make_data() throws Exception{
+        List kore = new ArrayList();
+        kore.add("hello");
+
+
+
+
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+        builder.startObject();
+        {
+            builder.field("user", "bbbb");
+            builder.field("postDate", new Date());
+            builder.field("message", "trying out Elasticsearch");
+        }
+        builder.endObject();
+        IndexRequest indexRequest = new IndexRequest("posts", "doc", "2")
+                .source(builder);
+
+        IndexResponse indexResponse = client.index(indexRequest);
+        String type = indexResponse.getType();
+        String id = indexResponse.getId();
+        long version = indexResponse.getVersion();
+        if (indexResponse.getResult() == DocWriteResponse.Result.CREATED) {
+
+        } else if (indexResponse.getResult() == DocWriteResponse.Result.UPDATED) {
+
+        }
+        ReplicationResponse.ShardInfo shardInfo = indexResponse.getShardInfo();
+        if (shardInfo.getTotal() != shardInfo.getSuccessful()) {
+
+        }
+        if (shardInfo.getFailed() > 0) {
+            for (ReplicationResponse.ShardInfo.Failure failure : shardInfo.getFailures()) {
+                String reason = failure.reason();
+            }
+        }
+
 
     }
 

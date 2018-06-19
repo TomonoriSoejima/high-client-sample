@@ -1,10 +1,15 @@
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
+import org.apache.http.message.BasicHeader;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.replication.ReplicationResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -12,6 +17,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -19,7 +25,11 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import java.util.*;
 
 
+
 public class Main {
+
+
+    static final String test_index = "test_index";
 
     public static void main(String[] args) throws Exception {
 
@@ -79,7 +89,7 @@ public class Main {
                         new HttpHost("localhost", 9200, "http"),
                         new HttpHost("localhost", 9201, "http")));
 
-        SearchRequest searchRequest = new SearchRequest("test_index");
+        SearchRequest searchRequest = new SearchRequest(test_index);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
         searchRequest.source(searchSourceBuilder);
@@ -114,7 +124,7 @@ public class Main {
         }
 
 
-        List<String> doc_ids  = new LinkedList<String>();
+        List<String> doc_ids;
 
         // find document with same messageUID
         for (String messageUID : message_id_UID.keySet())
@@ -152,7 +162,7 @@ public class Main {
         sourceBuilder.query(QueryBuilders.termQuery("cmd", input));
 
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices("test_index");
+        searchRequest.indices(test_index);
         searchRequest.source(sourceBuilder);
 //        QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("cmd", input);
 
@@ -177,7 +187,34 @@ public class Main {
     }
 
 
-    public static void update_message_id(String message_id, List docid) {
+    public static void update_message_id(String message_id, List docids) throws Exception {
+
+
+        Header header = new BasicHeader("a", "ba");
+
+//        headers.add(new BasicHeader("User-Agent",userAgent));
+        // create client
+
+
+        RestHighLevelClient client = new RestHighLevelClient(
+                RestClient.builder(
+                        new HttpHost("localhost", 9200, "http"),
+                        new HttpHost("localhost", 9201, "http")));
+
+            for (Object docid : docids)
+            {
+
+                Map<String, Object> jsonMap = new HashMap<>();
+                jsonMap.put("message-id", message_id);
+                UpdateRequest request = new UpdateRequest(test_index, "test_table", docid.toString())
+                        .doc(jsonMap);
+
+
+                UpdateResponse updateResponse = client.update(request, header);
+
+
+            }
+
             int aa = 9;
     }
 

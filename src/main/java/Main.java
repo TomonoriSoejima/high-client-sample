@@ -172,7 +172,7 @@ public class Main {
 
     }
 
-//     - 処理４
+//     - shori ４
 //    取得したmessage-idに対して、msgidが同じ値のドキュメントを特定する
     public static List<String> shori4(sb_object sb) throws Exception{
 

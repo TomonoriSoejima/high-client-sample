@@ -21,9 +21,20 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.*;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 
 
@@ -31,6 +42,7 @@ public class Main {
 
 
     static final String test_index = "test_index";
+    static final String index_hotel = "hotel";
 
     static final RestHighLevelClient client = new RestHighLevelClient(
             RestClient.builder(
@@ -39,7 +51,8 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        sample_code();
+//        sample_code();
+        kore();
 
     }
 
@@ -246,6 +259,52 @@ public class Main {
                 String reason = failure.reason();
             }
         }
+
+
+    }
+
+
+
+
+    public static void kore() throws Exception{
+
+
+        SearchRequest searchRequest = new SearchRequest(index_hotel);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
+        HistogramAggregationBuilder aggregation = AggregationBuilders.histogram("3");
+        aggregation.field("created").interval(600000);
+
+        aggregation.subAggregation(AggregationBuilders.terms("2").field("country.keyword").size(5));
+
+
+        searchSourceBuilder.aggregation(aggregation);
+
+
+
+        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse;
+        searchResponse = client.search(searchRequest);
+        Aggregations aggregations = searchResponse.getAggregations();
+
+        List<Aggregation> aggregationList = aggregations.asList();
+        var kore = aggregationList.get(0);
+
+        var aaaa = aggregationList.toArray();
+
+        Map<String, Aggregation> aggregationMap = aggregations.getAsMap();
+        Histogram histogramAggregation = (Histogram) aggregationMap.get("3");
+
+        histogramAggregation.getBuckets().stream().forEach(System.out::println);
+
+
+
+//        aggregationList.stream().forEach(System.out::println);
+//        aggregationList.stream().map(b -> {"b.3.bucket"});
+
+        int rr = 3;
+
 
 
     }

@@ -24,6 +24,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.*;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -34,8 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-
+import java.util.stream.Stream;
 
 
 public class Main {
@@ -52,7 +52,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
 //        sample_code();
-        kore();
+//        kore();
+        real_sample();
 
     }
 
@@ -272,10 +273,10 @@ public class Main {
         SearchRequest searchRequest = new SearchRequest(index_hotel);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
-        HistogramAggregationBuilder aggregation = AggregationBuilders.histogram("3");
+        HistogramAggregationBuilder aggregation = AggregationBuilders.histogram("by_created");
         aggregation.field("created").interval(600000);
 
-        aggregation.subAggregation(AggregationBuilders.terms("2").field("country.keyword").size(5));
+        aggregation.subAggregation(AggregationBuilders.terms("by_country").field("country.keyword").size(5));
 
 
         searchSourceBuilder.aggregation(aggregation);
@@ -288,19 +289,83 @@ public class Main {
         searchResponse = client.search(searchRequest);
         Aggregations aggregations = searchResponse.getAggregations();
 
-        List<Aggregation> aggregationList = aggregations.asList();
-        var kore = aggregationList.get(0);
+//        List<Aggregation> aggregationList = aggregations.asList();
+//
+//        for ( Aggregation a : aggregationList) {
+//
+//        }
 
-        var aaaa = aggregationList.toArray();
-
+//
         Map<String, Aggregation> aggregationMap = aggregations.getAsMap();
-        Histogram histogramAggregation = (Histogram) aggregationMap.get("3");
-
-        histogramAggregation.getBuckets().stream().forEach(System.out::println);
+        Histogram histogramAggregation = (Histogram) aggregationMap.get("by_created");
 
 
 
-//        aggregationList.stream().forEach(System.out::println);
+//
+        for ( var naibu : histogramAggregation.getBuckets()) {
+            var what = ((ParsedStringTerms) naibu.getAggregations().asList().get(0)).getBuckets();
+
+            what.stream().map(eee -> (eee).getKeyAsString()).forEach(System.out::println);
+
+//            what.map(a -> a.getKeyAsString()).forEach(System.out::println);
+//
+//            for (var aaa : what) {
+//               String tiger = aaa.getKeyAsString();
+//               System.out.println(tiger);
+//            }
+//            what.stream().map(a -> ((Terms.Bucket) a).getAggregations())
+//                    .collect(Collectors.toList()).forEach(System.out::println);
+
+
+            var gg = 9;
+        }
+//        var all_people = histogramAggregation.getBuckets().stream()
+//                .map(family -> (family).getAggregations());
+//
+//
+//        var kore =  histogramAggregation.getBuckets().stream().map(b -> (b).getAggregations()).collect(Collectors.toList());
+//
+//
+//
+//
+//        List<Aggregations> kore2 =  histogramAggregation.getBuckets().stream().map(b -> ((Histogram.Bucket) b).getAggregations()).collect(Collectors.toList());
+
+//
+//        for (var agg : kore2) {
+//            var un = agg.asList().get(0);
+//
+//            var vva = un.getName().().collect(Collectors.toList());
+//            var gg = 44;
+//        }
+//
+//        var gg = kore2.stream().map(result -> result.asList())
+//                .flatMap(List::stream)
+//                .collect(Collectors.toList());
+
+//        var gg1 = kore2.stream().map(result -> (T))
+
+        List<String> uris = new ArrayList<>();
+        uris.add("you ");
+        uris.add("you2 ");
+        Stream<String> stream4 = uris.stream().map(uri -> do_something(uri));
+        List<String> korea = stream4.collect(Collectors.toList());
+
+
+    uris.stream().map( uri -> do_something(uri)).forEach(System.out::println);
+
+//    var ggaaaa = kore2.stream().map(b -> (Terms.Bucket) b).
+
+
+        int gga = 9;
+
+        // this won't work
+//        var kore3 =  histogramAggregation.getBuckets().stream().map(b -> ((Histogram.Bucket) b).getAggregations())
+//                .collect(Collectors.toList()).stream().map(c -> ((Terms.Bucket) c).getAggregations()).collect(Collectors.toList());
+
+
+
+
+//        stream3.forEach(System.out::println);
 //        aggregationList.stream().map(b -> {"b.3.bucket"});
 
         int rr = 3;
@@ -309,6 +374,62 @@ public class Main {
 
     }
 
+    public static String do_something(String input) {
+        return input + " something";
+    }
+
+
+    public static void real_sample() throws Exception{
+
+        List<Person> soejima = new ArrayList<>();
+        soejima.add(new Person("haru", 3));
+        soejima.add(new Person("pu", 37));
+        soejima.add(new Person("tomo", 41));
+
+        List<Person> tanaka = new ArrayList<>();
+        tanaka.add(new Person("don", 3));
+        tanaka.add(new Person("raita", 37));
+        tanaka.add(new Person("ken", 41));
+
+        List<Person> yamada = new ArrayList<>();
+        yamada.add(new Person("mii", 3));
+        yamada.add(new Person("yuki", 37));
+        yamada.add(new Person("kaori", 41));
+
+        List<Family> families = new ArrayList<>();
+        families.add(new Family("soejima", soejima));
+        families.add(new Family("tanaka", tanaka));
+        families.add(new Family("yamada", yamada));
+
+
+
+
+        var aas = families.get(0).members.stream().toArray();
+
+
+
+
+        var all_people = families.stream()
+                .map(family -> family.getMembers())
+                .flatMap(Collection::stream)
+                .map(Person::getName).collect(Collectors.toList());
+
+
+        var ff = 9;
+
+//        familyStream.forEach(System.out::println);
+//       List<Family> families_list = kore.collect(Collectors.toList());
+
+
+
+
+        kore();
+        int gg = 9;
+//        families.stream().flatMap(Collection::stream).collect(Collectors.toList());
+
+
+
+    }
 
 
 }
